@@ -1,0 +1,46 @@
+{
+  "name": "catelog-service",
+  "version": "1.0.0",
+  "description": "The Catelog management service",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon src/server.ts",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "format:fix": "prettier --write \"src/**/*.ts\"",
+    "lint:check": "npx eslint .",
+    "lint:check1": "eslint . --max-warnings 0",
+    "lint:fix": "npx eslint . --fix",
+    "prepare": "husky"
+  },
+  "author": "Akshay J <akshay.jadhao108@gmail.com>",
+  "license": "ISC",
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/eslint__js": "^8.42.3",
+    "@types/express": "^5.0.6",
+    "@types/node": "^25.9.1",
+    "@types/winston": "^2.4.4",
+    "eslint": "^10.4.1",
+    "globals": "^17.6.0",
+    "http-errors": "^2.0.1",
+    "husky": "^9.1.7",
+    "jiti": "^2.7.0",
+    "lint-staged": "^16.4.0",
+    "nodemon": "^3.1.14",
+    "prettier": "3.8.3",
+    "ts-node": "^10.9.2",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.60.1"
+  },
+  "lint-staged": {
+    "*.ts": [
+      "npm run format:fix",
+      "npm run lint:fix"
+    ]
+  },
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "winston": "^3.19.0"
+  }
+}
