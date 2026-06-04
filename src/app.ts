@@ -1,15 +1,15 @@
 import express, { NextFunction, Request, Response } from "express";
-import createHttpError, { HttpError } from "http-errors";
+import { HttpError } from "http-errors";
 import logger from "./config/logger";
 
 const app = express();
 app.disable("x-powered-by");
 app.use(express.json());
 
-app.get("/", async (req, res, next) => {
-  const error = createHttpError(401, "Bad Request");
-  next(error);
-  // res.send("Welcome to the Catelog Service");
+app.get("/", async (req, res) => {
+  // const error = createHttpError(401, "Bad Request");
+  // next(error);
+  res.send("Welcome to the Catelog Service");
 });
 
 //global error handler

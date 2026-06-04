@@ -1,5 +1,4 @@
 import js from "@eslint/js";
-import globals from "globals";
 import tseslint from "typescript-eslint";
 import { defineConfig } from "eslint/config";
 import path from "node:path";
@@ -74,6 +73,7 @@ export default defineConfig([
       "dot-notation": "error",
       "@typescript-eslint/require-await": "off",
       "@typescript-eslint/no-unsafe-assignment": "off",
+      "@typescript-eslint/no-misused-promises": "error",
     },
   },
 ]);
