@@ -1,0 +1,67 @@
+import mongoose from "mongoose";
+
+interface PriceConfiguration {
+  [key: string]: {
+    priceType: "base" | "additional";
+    availableOptions: string[];
+  };
+}
+interface Attributes {
+  name: string;
+  weightType: "switch" | "radio";
+  defaultValue: string;
+  availableOptions: string[];
+}
+export interface Category {
+  name: string;
+  priceConfigurations: PriceConfiguration;
+  attributes: Attributes[];
+}
+
+const priceConfigurationModel = new mongoose.Schema<PriceConfiguration>({
+  priceType: {
+    type: String,
+    enum: ["base", "additional"],
+    required: true,
+  },
+  availableOptions: {
+    type: [String],
+    required: true,
+  },
+});
+const attributeScema = new mongoose.Schema<Attributes>({
+  name: {
+    type: String,
+    required: true,
+  },
+  weightType: {
+    type: String,
+    enum: ["switch", "radio"],
+    required: true,
+  },
+  defaultValue: {
+    type: String,
+    required: true,
+  },
+  availableOptions: {
+    type: [String],
+    required: true,
+  },
+});
+const categorySchema = new mongoose.Schema<Category>({
+  name: {
+    type: String,
+    required: true,
+  },
+  priceConfigurations: {
+    type: Map,
+    of: priceConfigurationModel,
+    required: true,
+  },
+  attributes: {
+    type: [attributeScema],
+    required: true,
+  },
+});
+
+export default mongoose.model("Category", categorySchema);
