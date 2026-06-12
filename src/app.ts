@@ -1,5 +1,6 @@
 import express from "express";
-import { globalErrorHandler } from "./middlewares/globalErrorHandlers";
+import { globalErrorHandler } from "./common/middlewares/globalErrorHandlers";
+import categoryRouter from "./category/category-router";
 
 const app = express();
 app.disable("x-powered-by");
@@ -12,7 +13,7 @@ app.get("/", async (req, res) => {
     message: "Welcome to the Catelog Service",
   });
 });
-
+app.use("/categories", categoryRouter);
 //global error handler
 app.use(globalErrorHandler);
 

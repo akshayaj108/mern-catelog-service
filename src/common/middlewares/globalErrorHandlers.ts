@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { HttpError } from "http-errors";
-import { CONFIG } from "../config";
-import logger from "../config/logger";
+import { CONFIG } from "../../config";
+import logger from "../../config/logger";
 import crypto from "node:crypto";
 
 export const globalErrorHandler = (

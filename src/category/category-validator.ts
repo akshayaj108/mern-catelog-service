@@ -20,6 +20,7 @@ export default [
           `${value} is invalid attribute for price type field. Possible values are: [${validKeys.join(",")}]`,
         );
       }
+      return true;
     }),
 
   body("attributes").exists().withMessage("Attributes field is required"),
@@ -34,6 +35,7 @@ export default [
           `${value} is invalid attribute for weight type field. Possible values are: [${validKeys.join(",")}`,
         );
       }
+      return true;
     }),
   body("attributes.*.defaultValue")
     .exists()
