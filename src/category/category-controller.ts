@@ -17,16 +17,13 @@ export class CategoryController {
       next(createHttpError(400, results.array()[0]?.msg as string));
     }
     const { name, priceConfiguration, attributes } = req.body as Category;
-    try {
-      const category = await this.categoryService.create({
-        name,
-        priceConfiguration,
-        attributes,
-      });
-      this.logger.info("Category is created", { id: category._id });
-      res.json({ id: category._id });
-    } catch (error) {
-      next(error);
-    }
+
+    const category = await this.categoryService.create({
+      name,
+      priceConfiguration,
+      attributes,
+    });
+    this.logger.info("Category is created", { id: category._id });
+    res.json({ id: category._id });
   };
 }
