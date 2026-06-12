@@ -1,10 +1,13 @@
 import config from "config";
 import app from "./app";
 import logger from "./config/logger";
+import { initDb } from "./config/db";
 
-function startServer() {
+async function startServer() {
   const PORT: number = config.get("server.port") || 5503;
   try {
+    await initDb();
+    logger.info("Database connected successfully");
     app.listen(PORT, () => {
       logger.info(`Server started on port ${PORT}`);
     });
@@ -14,4 +17,4 @@ function startServer() {
   }
 }
 
-startServer();
+void startServer();
