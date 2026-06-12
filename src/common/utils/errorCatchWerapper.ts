@@ -7,6 +7,7 @@ export const asyncErrorCatchWrapper = (requesthandler: RequestHandler) => {
       if (error instanceof Error) {
         return next(createHttpError(500, error.message));
       }
+
       return next(createHttpError(500, "Internal server error"));
     });
   };

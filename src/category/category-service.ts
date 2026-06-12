@@ -6,4 +6,21 @@ export class CategoryService {
     const category = new categoryModel(categoryData);
     return category.save();
   };
+
+  update = async (id: string, categoryData: Category) => {
+    const updatedCategory = await categoryModel.findByIdAndUpdate(
+      id,
+      categoryData,
+      {
+        new: true,
+        runValidators: true,
+      },
+    );
+
+    if (!updatedCategory) {
+      throw new Error("Category not found");
+    }
+
+    return updatedCategory;
+  };
 }

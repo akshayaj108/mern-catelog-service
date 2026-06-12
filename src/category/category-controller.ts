@@ -4,6 +4,7 @@ import createHttpError from "http-errors";
 import { Category } from "./category-types";
 import { CategoryService } from "./category-service";
 import { Logger } from "winston";
+import mongoose from "mongoose";
 
 export class CategoryController {
   constructor(
@@ -25,5 +26,26 @@ export class CategoryController {
     });
     this.logger.info("Category is created", { id: category._id });
     res.json({ id: category._id });
+  };
+
+  update = async (req: Request, res: Response, next: NextFunction) => {
+    const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+    if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+      return next(createHttpError(400, "Invalid category id"));
+    }
+    const results = validationResult(req);
+    if (!results.isEmpty()) {
+      return next(createHttpError(400, results.array()[0]?.msg as string));
+    }
+
+    const { name, priceConfiguration, attributes } = req.body as Category;
+
+    const response = await this.categoryService.update(id, {
+      name,
+      priceConfiguration,
+      attributes,
+    });
+    this.logger.info("Category is updated successfully");
+    res.json(response);
   };
 }

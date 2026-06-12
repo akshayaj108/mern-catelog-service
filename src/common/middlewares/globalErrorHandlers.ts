@@ -15,14 +15,28 @@ export const globalErrorHandler = (
   const statusCode = err.status;
   const isProduction = CONFIG.NODE_ENV === "production";
   const message = isProduction ? "Internal server error" : err.message;
-
+  console.log("logging error--------------", err);
   logger.error(err.message, statusCode, {
     id: errorId,
     error: err.stack,
     path: req.path,
     method: req.method,
   });
-
+  if (err.name === "AggregateError") {
+    return res.status(503).json({
+      errors: [
+        {
+          ref: errorId,
+          type: err.name,
+          msg: "Authentication service unavailable",
+          path: req.path,
+          method: req.method,
+          location: "server",
+          stack: isProduction ? null : err.stack,
+        },
+      ],
+    });
+  }
   res.status(statusCode).json({
     errors: [
       {
