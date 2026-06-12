@@ -4,7 +4,7 @@ import createHttpError from "http-errors";
 import { Category } from "./category-types";
 import { CategoryService } from "./category-service";
 import { Logger } from "winston";
-import mongoose from "mongoose";
+
 export class CategoryController {
   constructor(
     private readonly categoryService: CategoryService,
@@ -26,20 +26,40 @@ export class CategoryController {
     this.logger.info("Category is created", { id: category._id });
     res.json({ id: category._id });
   };
+  get = async (req: Request, res: Response) => {
+    const results = await this.categoryService.getAll();
+    this.logger.info("All categories fetched");
+    res.json(results);
+  };
 
-  update = async (req: Request, res: Response, next: NextFunction) => {
-    const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-    if (!id || !mongoose.Types.ObjectId.isValid(id)) {
-      return next(createHttpError(400, "Invalid category id"));
+  getById = async (req: Request, res: Response, next: NextFunction) => {
+    const categoryId = Array.isArray(req.params.id)
+      ? req.params.id[0]
+      : req.params.id;
+    if (!categoryId) {
+      return next(createHttpError(400, "Category id is required"));
     }
+    const category = await this.categoryService.getOne(categoryId);
+    if (!category) {
+      return next(createHttpError(404, "Category not found"));
+    }
+    this.logger.info("Category details fetched", { id: categoryId });
+    res.json(category);
+  };
+  update = async (req: Request, res: Response, next: NextFunction) => {
     const results = validationResult(req);
     if (!results.isEmpty()) {
       return next(createHttpError(400, results.array()[0]?.msg as string));
     }
-
+    const categoryId = Array.isArray(req.params.id)
+      ? req.params.id[0]
+      : req.params.id;
+    if (!categoryId) {
+      return next(createHttpError(400, "Category id is required"));
+    }
     const categoryData = req.body as Category;
 
-    const existingCategoryData = await this.categoryService.getOne(id);
+    const existingCategoryData = await this.categoryService.getOne(categoryId);
 
     if (!existingCategoryData) {
       return next(createHttpError(404, "Category not found"));
@@ -58,8 +78,29 @@ export class CategoryController {
       categoryData.priceConfiguration = mergedConfig;
     }
 
-    const response = await this.categoryService.update(id, categoryData);
-    this.logger.info("Category is updated successfully", { id });
+    const response = await this.categoryService.update(
+      categoryId,
+      categoryData,
+    );
+    this.logger.info("Category is updated successfully", { id: categoryId });
     res.json(response);
+  };
+
+  delete = async (req: Request, res: Response, next: NextFunction) => {
+    const categoryId = Array.isArray(req.params.id)
+      ? req.params.id[0]
+      : req.params.id;
+    if (!categoryId) {
+      return next(createHttpError(400, "Category id is required"));
+    }
+    const isCateoryExist = await this.categoryService.getOne(categoryId);
+    if (!isCateoryExist) {
+      return next(createHttpError(404, "Category not found"));
+    }
+    await this.categoryService.delete(categoryId);
+    this.logger.info("Categor deleted successfully", { id: categoryId });
+    res.json({
+      id: categoryId,
+    });
   };
 }

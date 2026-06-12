@@ -24,6 +24,7 @@ router.post(
 router.patch("/", (req, res, next) => {
   next(createHttpError(400, "Category id is required"));
 });
+
 router.patch(
   "/:id",
   authenticates,
@@ -31,5 +32,16 @@ router.patch(
   categoryValidator,
   asyncErrorCatchWrapper(categoryController.update),
 );
+
+router.delete(
+  "/:id",
+  authenticates,
+  canAccess([Roles.ADMIN]),
+  asyncErrorCatchWrapper(categoryController.delete),
+);
+
+//public routes
+router.get("/", asyncErrorCatchWrapper(categoryController.get));
+router.get("/:id", asyncErrorCatchWrapper(categoryController.getById));
 
 export default router;

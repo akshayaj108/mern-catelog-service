@@ -7,15 +7,18 @@ export class CategoryService {
     return category.save();
   };
 
+  getAll = async () => {
+    return await categoryModel.find();
+  };
   getOne = async (id: string) => {
     return await categoryModel.findById(id);
   };
-  update = async (id: string, categoryData: Category) => {
+  update = async (categoryId: string, categoryData: Category) => {
     const updatedCategory = await categoryModel.findByIdAndUpdate(
-      id,
+      categoryId,
       categoryData,
       {
-        new: true,
+        returnDocument: "after",
         runValidators: true,
       },
     );
@@ -25,5 +28,9 @@ export class CategoryService {
     }
 
     return updatedCategory;
+  };
+
+  delete = async (id: string) => {
+    return await categoryModel.findByIdAndDelete(id);
   };
 }
