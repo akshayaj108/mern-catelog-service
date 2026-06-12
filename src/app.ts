@@ -1,9 +1,11 @@
 import express from "express";
 import { globalErrorHandler } from "./common/middlewares/globalErrorHandlers";
 import categoryRouter from "./category/category-router";
+import cookieParser from "cookie-parser";
 
 const app = express();
 app.disable("x-powered-by");
+app.use(cookieParser());
 app.use(express.json());
 
 app.get("/", async (req, res) => {
