@@ -5,7 +5,6 @@ import { Category } from "./category-types";
 import { CategoryService } from "./category-service";
 import { Logger } from "winston";
 import mongoose from "mongoose";
-
 export class CategoryController {
   constructor(
     private readonly categoryService: CategoryService,
@@ -38,14 +37,29 @@ export class CategoryController {
       return next(createHttpError(400, results.array()[0]?.msg as string));
     }
 
-    const { name, priceConfiguration, attributes } = req.body as Category;
+    const categoryData = req.body as Category;
 
-    const response = await this.categoryService.update(id, {
-      name,
-      priceConfiguration,
-      attributes,
-    });
-    this.logger.info("Category is updated successfully");
+    const existingCategoryData = await this.categoryService.getOne(id);
+
+    if (!existingCategoryData) {
+      return next(createHttpError(404, "Category not found"));
+    }
+
+    if (categoryData.priceConfiguration) {
+      const existingConfig =
+        existingCategoryData?.priceConfiguration instanceof Map
+          ? Object.fromEntries(existingCategoryData.priceConfiguration)
+          : existingCategoryData.priceConfiguration;
+      //mergeConfiguration
+      const mergedConfig = {
+        ...existingConfig,
+        ...categoryData.priceConfiguration,
+      };
+      categoryData.priceConfiguration = mergedConfig;
+    }
+
+    const response = await this.categoryService.update(id, categoryData);
+    this.logger.info("Category is updated successfully", { id });
     res.json(response);
   };
 }

@@ -7,6 +7,9 @@ export class CategoryService {
     return category.save();
   };
 
+  getOne = async (id: string) => {
+    return await categoryModel.findById(id);
+  };
   update = async (id: string, categoryData: Category) => {
     const updatedCategory = await categoryModel.findByIdAndUpdate(
       id,

@@ -15,7 +15,7 @@ export const globalErrorHandler = (
   const statusCode = err.status;
   const isProduction = CONFIG.NODE_ENV === "production";
   const message = isProduction ? "Internal server error" : err.message;
-  console.log("logging error--------------", err);
+
   logger.error(err.message, statusCode, {
     id: errorId,
     error: err.stack,
