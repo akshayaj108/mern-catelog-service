@@ -7,14 +7,14 @@ export default [
     .isString()
     .withMessage("Product name should be a string"),
 
-  body("description").exists().withMessage("Descriptions is required"),
+  body("descriptions").exists().withMessage("Descriptions is required"),
 
-  body("image").custom((value, { req }) => {
-    if (!req.files) {
-      throw new Error("Product image is required");
-    }
-    return true;
-  }),
+  // body("image").custom((value, { req }) => {
+  //   if (!req.files) {
+  //     throw new Error("Product image is required");
+  //   }
+  //   return true;
+  // }),
 
   body("priceConfiguration")
     .exists()
