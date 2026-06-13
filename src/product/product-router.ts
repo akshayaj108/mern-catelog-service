@@ -8,16 +8,27 @@ import productValidator from "./product-validator";
 import { ProductService } from "./product-service";
 import logger from "../config/logger";
 import fileUpload from "express-fileupload";
+import { CloudinaryStorage } from "../common/services/CloudinaryStorage";
 
 const router = express.Router();
+const cloudinaryStorage = new CloudinaryStorage();
 const productService = new ProductService();
-const productController = new ProductController(productService, logger);
+const productController = new ProductController(
+  productService,
+  logger,
+  cloudinaryStorage,
+);
 
 router.post(
   "/",
   authenticates,
   canAccess([Roles.ADMIN, Roles.MANAGER]),
-  fileUpload(),
+  fileUpload({
+    limits: {
+      fileSize: 5 * 1024 * 1024, // 5 MB
+    },
+    abortOnLimit: true, //The upload is immediately stopped. User get error about size limit
+  }),
   productValidator,
   asyncErrorCatchWrapper(productController.create),
 );
