@@ -32,5 +32,18 @@ router.post(
   productValidator,
   asyncErrorCatchWrapper(productController.create),
 );
+router.put(
+  "/:productId",
+  authenticates,
+  canAccess([Roles.ADMIN, Roles.MANAGER]),
+  fileUpload({
+    limits: {
+      fileSize: 5 * 1024 * 1024, // 5 MB
+    },
+    abortOnLimit: true, //The upload is immediately stopped. User get error about size limit
+  }),
+  productValidator,
+  asyncErrorCatchWrapper(productController.update),
+);
 
 export default router;
