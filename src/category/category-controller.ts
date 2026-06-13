@@ -26,7 +26,7 @@ export class CategoryController {
     this.logger.info("Category is created", { id: category._id });
     res.json({ id: category._id });
   };
-  get = async (req: Request, res: Response) => {
+  get = async (_req: Request, res: Response) => {
     const results = await this.categoryService.getAll();
     this.logger.info("All categories fetched");
     res.json(results);
