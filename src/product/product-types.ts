@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { PriceConfiguration } from "../category/category-types";
 
 interface AttributesForProduct {
@@ -14,4 +15,10 @@ export interface Product {
   categoryId: string;
   image: string;
   isPublish: boolean;
+}
+
+export interface ProductFilter {
+  tenantId?: string;
+  categoryId?: mongoose.Types.ObjectId;
+  isPublish?: boolean;
 }

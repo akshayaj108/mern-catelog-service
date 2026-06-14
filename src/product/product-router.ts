@@ -46,4 +46,6 @@ router.put(
   asyncErrorCatchWrapper(productController.update),
 );
 
+router.get("/", asyncErrorCatchWrapper(productController.getProdctList));
+
 export default router;
