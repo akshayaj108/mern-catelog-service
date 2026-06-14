@@ -6,6 +6,7 @@ interface AttributesForProduct {
   value: string;
 }
 export interface Product {
+  _id?: mongoose.Schema.Types.ObjectId;
   name: string;
   descriptions: string;
   // todo: fix the price configuration type

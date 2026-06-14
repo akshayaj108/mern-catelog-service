@@ -150,8 +150,9 @@ export class ProductController {
   };
 
   getProdctList = async (req: Request, res: Response) => {
-    const { q, tenantId, categoryId, isPublish } = req.query;
+    const { q, tenantId, categoryId, isPublish, limit, page } = req.query;
     const filters: ProductFilter = {};
+
     if (isPublish === "true") {
       filters.isPublish = true;
     }
@@ -162,9 +163,14 @@ export class ProductController {
       // we add new mongoose query to convert normal string id to ObjectId(string id) same as in mongodb for filter
       filters.categoryId = new mongoose.Types.ObjectId(categoryId as string);
     }
+
     const products = await this.productService.getProducts(
       q as string,
       filters,
+      {
+        page: page ? Number(page) : 1,
+        limit: limit ? Number(limit) : 10,
+      },
     );
     this.logger.info("Products fetched");
     res.json(products);

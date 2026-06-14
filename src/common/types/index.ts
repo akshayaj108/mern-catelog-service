@@ -27,3 +27,8 @@ export interface FileStorage {
   delete(fileName: string): Promise<void>;
   getObjectUri(fileName: string): string;
 }
+
+export interface PaginateQuery {
+  page: number;
+  limit: number;
+}
