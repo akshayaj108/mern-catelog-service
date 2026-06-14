@@ -5,7 +5,7 @@ import { validationResult } from "express-validator";
 import createHttpError from "http-errors";
 import { ProductService } from "./product-service";
 import { Logger } from "winston";
-import { FileStorage } from "../common/types";
+import { AuthRequest, FileStorage } from "../common/types";
 import { UploadedFile } from "express-fileupload";
 
 export class ProductController {
@@ -59,6 +59,7 @@ export class ProductController {
 
   update = async (req: Request, res: Response, next: NextFunction) => {
     //validation check
+
     const results = validationResult(req);
     if (!results.isEmpty()) {
       next(createHttpError(400, results.array()[0]?.msg as string));
@@ -70,6 +71,22 @@ export class ProductController {
     if (!productId) {
       return next(createHttpError(400, "Product id is required"));
     }
+
+    const product = await this.productService.getProduct(productId);
+
+    if (!product) {
+      return next(
+        createHttpError(404, "Product not found for this product id"),
+      );
+    }
+
+    const userTenantId = (req as AuthRequest).auth?.tenantId;
+
+    if (userTenantId && product?.tenantId.trim() !== String(userTenantId)) {
+      return next(
+        createHttpError(503, "You are not allow to access this product"),
+      );
+    }
     //body data destructuring
     const {
       name,
@@ -80,10 +97,13 @@ export class ProductController {
       categoryId,
       isPublish,
     } = req.body;
+
+    //image upload
     let imageUrl: string | undefined;
     let productOldImage: string | undefined;
+
     if (req.files && req.files.image) {
-      productOldImage = await this.productService.getProductImage(productId);
+      productOldImage = product.image;
       if (productOldImage) {
         await this.storageService.delete(productOldImage);
       }
@@ -94,7 +114,7 @@ export class ProductController {
         fileData: image.data,
       });
     } else {
-      productOldImage = await this.productService.getProductImage(productId);
+      productOldImage = product.image;
     }
 
     const resolvedImage = imageUrl ?? productOldImage;
@@ -103,7 +123,7 @@ export class ProductController {
       return next(createHttpError(400, "Product image is required"));
     }
 
-    const product = {
+    const productUpdatedData = {
       name,
       descriptions,
       priceConfiguration: JSON.parse(priceConfiguration as string),
@@ -113,7 +133,10 @@ export class ProductController {
       isPublish,
       image: resolvedImage,
     };
-    const updatedProduct = await this.productService.upadte(productId, product);
+    const updatedProduct = await this.productService.upadte(
+      productId,
+      productUpdatedData,
+    );
     this.logger.info("Product updated successfully", {
       id: updatedProduct?._id,
     });
