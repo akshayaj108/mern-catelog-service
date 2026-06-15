@@ -175,4 +175,23 @@ export class ProductController {
     this.logger.info("Products fetched");
     res.json(products);
   };
+
+  getProductById = async (req: Request, res: Response, next: NextFunction) => {
+    const productId = Array.isArray(req.params.productId)
+      ? req.params.productId[0]
+      : req.params.productId;
+    if (!productId) {
+      return next(createHttpError(400, "Product id is required"));
+    }
+
+    const product = await this.productService.getProduct(productId);
+
+    if (!product) {
+      return next(
+        createHttpError(404, "Product not found for this product id"),
+      );
+    }
+    this.logger.info("Product details are fetched", { id: productId });
+    res.json(product);
+  };
 }

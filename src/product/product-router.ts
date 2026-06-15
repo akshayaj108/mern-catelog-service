@@ -48,4 +48,6 @@ router.put(
 
 router.get("/", asyncErrorCatchWrapper(productController.getProdctList));
 
+router.get("/:id", asyncErrorCatchWrapper(productController.getProductById));
+
 export default router;
