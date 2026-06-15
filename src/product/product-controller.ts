@@ -144,8 +144,38 @@ export class ProductController {
     });
     //note: if we leave controller without res then it will process untill timeout
     res.json({
-      message: "Product updated",
+      message: "Product updated successfully",
       id: updatedProduct,
+    });
+  };
+
+  delete = async (req: Request, res: Response, next: NextFunction) => {
+    const productId = Array.isArray(req.params.productId)
+      ? req.params.productId[0]
+      : req.params.productId;
+    if (!productId) {
+      return next(createHttpError(400, "Product id is required"));
+    }
+
+    const product = await this.productService.getProduct(productId);
+
+    if (!product) {
+      return next(
+        createHttpError(404, "Product not found for this product id"),
+      );
+    }
+    const productImage = product.image;
+    if (productImage) {
+      await this.storageService.delete(productImage);
+    }
+    await this.productService.deleteProduct(productId);
+    this.logger.info("Product deleted successfully", {
+      id: productId,
+    });
+
+    res.json({
+      message: "Product deleted successfully",
+      id: productId,
     });
   };
 

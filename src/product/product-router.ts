@@ -45,6 +45,12 @@ router.put(
   productValidator,
   asyncErrorCatchWrapper(productController.update),
 );
+router.delete(
+  "/:productId",
+  authenticates,
+  canAccess([Roles.ADMIN, Roles.MANAGER]),
+  asyncErrorCatchWrapper(productController.delete),
+);
 
 router.get("/", asyncErrorCatchWrapper(productController.getProdctList));
 
