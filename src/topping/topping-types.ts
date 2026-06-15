@@ -8,3 +8,9 @@ export interface Topping {
   tenantId: string;
   isPublish: boolean;
 }
+
+export interface ToppingFilter {
+  q?: string;
+  tenantId?: string;
+  isPublish?: boolean;
+}

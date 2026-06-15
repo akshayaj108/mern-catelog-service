@@ -61,7 +61,6 @@ export class ProductController {
 
   update = async (req: Request, res: Response, next: NextFunction) => {
     //validation check
-
     const results = validationResult(req);
     if (!results.isEmpty()) {
       next(createHttpError(400, results.array()[0]?.msg as string));
@@ -83,8 +82,11 @@ export class ProductController {
     }
 
     const userTenantId = (req as AuthRequest).auth?.tenantId;
-
-    if (userTenantId && product?.tenantId.trim() !== String(userTenantId)) {
+    const userRole = (req as AuthRequest).auth.role;
+    if (
+      userRole !== "admin" &&
+      product?.tenantId.trim() !== String(userTenantId)
+    ) {
       return next(
         createHttpError(503, "You are not allow to access this product"),
       );
@@ -101,11 +103,10 @@ export class ProductController {
     } = req.body;
 
     //image upload
-    let imageUrl: string | undefined;
-    let productOldImage: string | undefined;
+    const productOldImage: string = product.image;
+    let imageUrl = productOldImage;
 
     if (req.files && req.files.image) {
-      productOldImage = product.image;
       if (productOldImage) {
         await this.storageService.delete(productOldImage);
       }
@@ -115,8 +116,6 @@ export class ProductController {
         fileName: `${uniqueChar}-${image.name}`,
         fileData: image.data,
       });
-    } else {
-      productOldImage = product.image;
     }
 
     const resolvedImage = imageUrl ?? productOldImage;
@@ -162,6 +161,16 @@ export class ProductController {
     if (!product) {
       return next(
         createHttpError(404, "Product not found for this product id"),
+      );
+    }
+    const userTenantId = (req as AuthRequest).auth?.tenantId;
+    const userRole = (req as AuthRequest).auth.role;
+    if (
+      userRole !== "admin" &&
+      product?.tenantId.trim() !== String(userTenantId)
+    ) {
+      return next(
+        createHttpError(503, "You are not allow to access this product"),
       );
     }
     const productImage = product.image;

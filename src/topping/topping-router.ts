@@ -13,7 +13,7 @@ import { ToppingController } from "./topping-controller";
 const router = express.Router();
 const cloudinaryStorage = new CloudinaryStorage();
 const toppingService = new ToppingService();
-const productController = new ToppingController(
+const toppingController = new ToppingController(
   toppingService,
   logger,
   cloudinaryStorage,
@@ -30,7 +30,32 @@ router.post(
     abortOnLimit: true, //The upload is immediately stopped. User get error about size limit
   }),
 
-  asyncErrorCatchWrapper(productController.create),
+  asyncErrorCatchWrapper(toppingController.create),
 );
+
+router.put(
+  "/:id",
+  authenticates,
+  canAccess([Roles.ADMIN, Roles.MANAGER]),
+  fileUpload({
+    limits: {
+      fileSize: 5 * 1024 * 1024, // 5 MB
+    },
+    abortOnLimit: true, //The upload is immediately stopped. User get error about size limit
+  }),
+
+  asyncErrorCatchWrapper(toppingController.update),
+);
+
+router.delete(
+  "/:id",
+  authenticates,
+  canAccess([Roles.ADMIN, Roles.MANAGER]),
+
+  asyncErrorCatchWrapper(toppingController.delete),
+);
+
+router.get("/:id", asyncErrorCatchWrapper(toppingController.getTopping));
+router.get("/", asyncErrorCatchWrapper(toppingController.getToppings));
 
 export default router;

@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import aggregatePaginate from "mongoose-aggregate-paginate-v2";
 
 const toppingScema = new mongoose.Schema({
   name: {
@@ -22,5 +23,6 @@ const toppingScema = new mongoose.Schema({
     required: false,
   },
 });
-
+//need to use plugin to add paginate aggregate
+toppingScema.plugin(aggregatePaginate);
 export default mongoose.model("Toping", toppingScema);

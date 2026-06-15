@@ -16,11 +16,12 @@ export class CloudinaryStorage implements FileStorage {
     const base64String = Buffer.from(data.fileData as Buffer).toString(
       "base64",
     );
+    const formatName = data.fileName.replace(/\.[^/.]+$/, "");
 
     const result = await cloudinary.uploader.upload(
       `data:image/jpeg;base64,${base64String}`,
       {
-        public_id: data.fileName,
+        public_id: formatName,
       },
     );
 
