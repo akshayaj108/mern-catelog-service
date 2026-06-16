@@ -6,7 +6,7 @@ export interface PriceConfiguration {
 }
 export interface Attributes {
   name: string;
-  weightType: "switch" | "radio";
+  widgetType: "switch" | "radio";
   defaultValue: string;
   availableOptions: string[];
 }

@@ -17,7 +17,7 @@ const attributeScema = new mongoose.Schema<Attributes>({
     type: String,
     required: true,
   },
-  weightType: {
+  widgetType: {
     type: String,
     enum: ["switch", "radio"],
     required: true,

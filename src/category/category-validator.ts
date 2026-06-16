@@ -25,9 +25,9 @@ export default [
 
   body("attributes").exists().withMessage("Attributes field is required"),
   body("attributes.*.name").exists().withMessage("Attributes name is required"),
-  body("attributes.*.weightType")
+  body("attributes.*.widgetType")
     .exists()
-    .withMessage("Attributes weight type is required")
+    .withMessage("Attributes widget type is required")
     .custom((value: "switch" | "radio") => {
       const validKeys = ["switch", "radio"];
       if (!validKeys.includes(value)) {
