@@ -46,6 +46,11 @@ const categorySchema = new mongoose.Schema<Category>(
       type: [attributeScema],
       required: true,
     },
+    isToppingIncluded: {
+      type: Boolean,
+      required: true,
+      default: false,
+    },
   },
   { timestamps: true },
 );

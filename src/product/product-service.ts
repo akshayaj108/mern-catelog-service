@@ -51,6 +51,7 @@ export class ProductService {
                 _id: 1,
                 name: 1,
                 attributes: 1,
+                priceConfiguration: 1,
               },
             },
           ],

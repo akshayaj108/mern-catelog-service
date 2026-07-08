@@ -16,12 +16,14 @@ export class CategoryController {
     if (!results.isEmpty()) {
       next(createHttpError(400, results.array()[0]?.msg as string));
     }
-    const { name, priceConfiguration, attributes } = req.body as Category;
+    const { name, priceConfiguration, attributes, isToppingIncluded } =
+      req.body as Category;
 
     const category = await this.categoryService.create({
       name,
       priceConfiguration,
       attributes,
+      isToppingIncluded,
     });
     this.logger.info("Category is created", { id: category._id });
     res.json({ id: category._id });
