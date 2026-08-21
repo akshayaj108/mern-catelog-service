@@ -9,14 +9,17 @@ import { ProductService } from "./product-service";
 import logger from "../config/logger";
 import fileUpload from "express-fileupload";
 import { CloudinaryStorage } from "../common/services/CloudinaryStorage";
+import { createMessageBroker } from "../common/factories/brokerFactory";
 
 const router = express.Router();
 const cloudinaryStorage = new CloudinaryStorage();
 const productService = new ProductService();
+const broker = createMessageBroker();
 const productController = new ProductController(
   productService,
   logger,
   cloudinaryStorage,
+  broker,
 );
 
 router.post(

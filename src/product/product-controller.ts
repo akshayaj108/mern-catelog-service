@@ -1,3 +1,4 @@
+import config from "config";
 import { NextFunction, Response } from "express";
 import crypto from "node:crypto";
 import { Request } from "express-jwt";
@@ -9,12 +10,14 @@ import { AuthRequest, FileStorage } from "../common/types";
 import { UploadedFile } from "express-fileupload";
 import { ProductFilter } from "./product-types";
 import mongoose from "mongoose";
+import { MessageProducerBroker } from "../types/broker";
 
 export class ProductController {
   constructor(
     private readonly productService: ProductService,
     private readonly logger: Logger,
     private readonly storageService: FileStorage,
+    private readonly broker: MessageProducerBroker,
   ) {}
 
   create = async (req: Request, res: Response, next: NextFunction) => {
@@ -52,6 +55,14 @@ export class ProductController {
       image: imageUrl,
     };
     const newProduct = await this.productService.create(product);
+    await this.broker.sendMessage(
+      config.get("kafka.topic.product"),
+      JSON.stringify({
+        id: newProduct._id,
+        priceConfiguration: newProduct.priceConfiguration,
+      }),
+    );
+    this.logger.info("Message sent to broker successfully");
     this.logger.info("Product is added", { id: newProduct._id });
     res.json({
       message: "Product created",
@@ -138,12 +149,31 @@ export class ProductController {
       productId,
       productUpdatedData,
     );
+    console.log("========== BEFORE KAFKA ==========");
+    console.log("topic:", config.get("kafka.topic.product"));
+    console.log("broker:", config.get("kafka.broker"));
+    console.log(
+      "message:",
+      JSON.stringify({
+        id: updatedProduct._id,
+        priceConfiguration: updatedProduct.priceConfiguration,
+      }),
+    );
+    await this.broker.sendMessage(
+      config.get("kafka.topic.product"),
+      JSON.stringify({
+        id: updatedProduct._id,
+        priceConfiguration: updatedProduct.priceConfiguration,
+      }),
+    );
+    console.log("Message sent to broker successfully");
+    this.logger.info("Message sent to broker successfully");
     this.logger.info("Product updated successfully", {
       id: updatedProduct?._id,
     });
     //note: if we leave controller without res then it will process untill timeout
     res.json({
-      message: "Product updated successfully",
+      message: "Product updated successfully - V3",
       id: updatedProduct,
     });
   };
@@ -178,6 +208,13 @@ export class ProductController {
       await this.storageService.delete(productImage);
     }
     await this.productService.deleteProduct(productId);
+    await this.broker.sendMessage(
+      config.get("kafka.topic.product"),
+      JSON.stringify({
+        id: productId,
+      }),
+    );
+    this.logger.info("Message sent to broker successfully");
     this.logger.info("Product deleted successfully", {
       id: productId,
     });

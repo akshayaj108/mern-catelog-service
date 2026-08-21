@@ -9,14 +9,17 @@ import fileUpload from "express-fileupload";
 import { CloudinaryStorage } from "../common/services/CloudinaryStorage";
 import { ToppingService } from "./topping-service";
 import { ToppingController } from "./topping-controller";
+import { createMessageBroker } from "../common/factories/brokerFactory";
 
 const router = express.Router();
 const cloudinaryStorage = new CloudinaryStorage();
 const toppingService = new ToppingService();
+const broker = createMessageBroker();
 const toppingController = new ToppingController(
   toppingService,
   logger,
   cloudinaryStorage,
+  broker,
 );
 
 router.post(

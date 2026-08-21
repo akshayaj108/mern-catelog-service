@@ -1,3 +1,4 @@
+import config from "config";
 import { NextFunction, Request, Response } from "express";
 import { ToppingService } from "./topping-service";
 import { Logger } from "winston";
@@ -6,12 +7,14 @@ import { validationResult } from "express-validator";
 import createHttpError from "http-errors";
 import { UploadedFile } from "express-fileupload";
 import { ToppingFilter } from "./topping-types";
+import { MessageProducerBroker } from "../types/broker";
 
 export class ToppingController {
   constructor(
     private readonly toppingService: ToppingService,
     private readonly logger: Logger,
     private readonly storageService: FileStorage,
+    private readonly broker: MessageProducerBroker,
   ) {}
   create = async (req: Request, res: Response, next: NextFunction) => {
     const results = validationResult(req);
@@ -37,6 +40,13 @@ export class ToppingController {
       isPublish,
     };
     const newTopping = await this.toppingService.create(toppingData);
+    await this.broker.sendMessage(
+      config.get("kafka.topic.topping"),
+      JSON.stringify({
+        id: newTopping._id,
+        priceConfiguration: newTopping.price,
+      }),
+    );
     this.logger.info("Topping is created", { id: newTopping._id });
     res.json({ id: newTopping._id });
   };
@@ -94,6 +104,13 @@ export class ToppingController {
       isPublish,
     };
     const newTopping = await this.toppingService.update(toppingId, toppingData);
+    await this.broker.sendMessage(
+      config.get("kafka.topic.topping"),
+      JSON.stringify({
+        id: newTopping._id,
+        priceConfiguration: newTopping.price,
+      }),
+    );
     this.logger.info("Topping updated", { id: newTopping._id });
     res.json({
       message: "Tooping updated successfully",
