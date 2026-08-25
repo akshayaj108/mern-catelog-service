@@ -11,6 +11,7 @@ import { UploadedFile } from "express-fileupload";
 import { ProductFilter } from "./product-types";
 import mongoose from "mongoose";
 import { MessageProducerBroker } from "../types/broker";
+import { mapPriceConfiguration } from "../common/utils/helper";
 
 export class ProductController {
   constructor(
@@ -55,11 +56,14 @@ export class ProductController {
       image: imageUrl,
     };
     const newProduct = await this.productService.create(product);
+    const mappedPriceConfigurations = mapPriceConfiguration(
+      newProduct.priceConfiguration,
+    );
     await this.broker.sendMessage(
       config.get("kafka.topic.product"),
       JSON.stringify({
         id: newProduct._id,
-        priceConfiguration: newProduct.priceConfiguration,
+        priceConfiguration: mappedPriceConfigurations,
       }),
     );
     this.logger.info("Message sent to broker successfully");
@@ -159,11 +163,15 @@ export class ProductController {
         priceConfiguration: updatedProduct.priceConfiguration,
       }),
     );
+    console.log("Message sent ", updatedProduct.priceConfiguration);
+    const mappedPriceConfigurations = mapPriceConfiguration(
+      updatedProduct.priceConfiguration,
+    );
     await this.broker.sendMessage(
       config.get("kafka.topic.product"),
       JSON.stringify({
         id: updatedProduct._id,
-        priceConfiguration: updatedProduct.priceConfiguration,
+        priceConfiguration: mappedPriceConfigurations,
       }),
     );
     console.log("Message sent to broker successfully");
