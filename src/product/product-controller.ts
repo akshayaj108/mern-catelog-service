@@ -153,17 +153,7 @@ export class ProductController {
       productId,
       productUpdatedData,
     );
-    console.log("========== BEFORE KAFKA ==========");
-    console.log("topic:", config.get("kafka.topic.product"));
-    console.log("broker:", config.get("kafka.broker"));
-    console.log(
-      "message:",
-      JSON.stringify({
-        id: updatedProduct._id,
-        priceConfiguration: updatedProduct.priceConfiguration,
-      }),
-    );
-    console.log("Message sent ", updatedProduct.priceConfiguration);
+
     const mappedPriceConfigurations = mapPriceConfiguration(
       updatedProduct.priceConfiguration,
     );
@@ -174,11 +164,7 @@ export class ProductController {
         priceConfiguration: mappedPriceConfigurations,
       }),
     );
-    console.log("Message sent to broker successfully");
-    this.logger.info("Message sent to broker successfully");
-    this.logger.info("Product updated successfully", {
-      id: updatedProduct?._id,
-    });
+
     //note: if we leave controller without res then it will process untill timeout
     res.json({
       message: "Product updated successfully - V3",

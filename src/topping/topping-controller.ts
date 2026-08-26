@@ -44,7 +44,9 @@ export class ToppingController {
       config.get("kafka.topic.topping"),
       JSON.stringify({
         id: newTopping._id,
-        priceConfiguration: newTopping.price,
+        toppingName: newTopping.name,
+        tenantId: newTopping.tenantId,
+        price: newTopping.price,
       }),
     );
     this.logger.info("Topping is created", { id: newTopping._id });
@@ -108,7 +110,9 @@ export class ToppingController {
       config.get("kafka.topic.topping"),
       JSON.stringify({
         id: newTopping._id,
-        priceConfiguration: newTopping.price,
+        toppingName: newTopping.name,
+        tenantId: newTopping.tenantId,
+        price: newTopping.price,
       }),
     );
     this.logger.info("Topping updated", { id: newTopping._id });
