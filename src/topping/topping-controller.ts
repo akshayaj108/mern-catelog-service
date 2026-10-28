@@ -8,6 +8,7 @@ import createHttpError from "http-errors";
 import { UploadedFile } from "express-fileupload";
 import { ToppingFilter } from "./topping-types";
 import { MessageProducerBroker } from "../types/broker";
+import { EVENT_TYPE } from "../common/constants";
 
 export class ToppingController {
   constructor(
@@ -15,14 +16,15 @@ export class ToppingController {
     private readonly logger: Logger,
     private readonly storageService: FileStorage,
     private readonly broker: MessageProducerBroker,
-  ) {}
+  ) { }
+
   create = async (req: Request, res: Response, next: NextFunction) => {
     const results = validationResult(req);
     if (!results.isEmpty()) {
       next(createHttpError(400, results.array()[0]?.msg as string));
     }
     if (!req.files || !req.files.image) {
-      return next(createHttpError(400, "Product image is required"));
+      return next(createHttpError(400, "Topping image is required"));
     }
     const image = req.files.image as UploadedFile;
     const uniqueChar = crypto.randomUUID();
@@ -40,15 +42,23 @@ export class ToppingController {
       isPublish,
     };
     const newTopping = await this.toppingService.create(toppingData);
-    await this.broker.sendMessage(
-      config.get("kafka.topic.topping"),
-      JSON.stringify({
+    //formatting kafka message
+    const message = {
+      event_type: EVENT_TYPE.TOPPING_CREATE,
+      data: {
         id: newTopping._id,
         toppingName: newTopping.name,
         tenantId: newTopping.tenantId,
         price: newTopping.price,
-      }),
+      },
+    }
+
+    await this.broker.sendMessage(
+      config.get("kafka.topic.topping"),
+      JSON.stringify(message),
+      newTopping._id?.toString()
     );
+
     this.logger.info("Topping is created", { id: newTopping._id });
     res.json({ id: newTopping._id });
   };
@@ -105,17 +115,26 @@ export class ToppingController {
       tenantId,
       isPublish,
     };
-    const newTopping = await this.toppingService.update(toppingId, toppingData);
+    const updatedTopping = await this.toppingService.update(toppingId, toppingData);
+
+     //formatting kafka message
+    const message = {
+      event_type: EVENT_TYPE.TOPPING_UPDATE,
+      data: {
+        id: updatedTopping._id,
+        toppingName: updatedTopping.name,
+        tenantId: updatedTopping.tenantId,
+        price: updatedTopping.price,
+      },
+    }
+
     await this.broker.sendMessage(
       config.get("kafka.topic.topping"),
-      JSON.stringify({
-        id: newTopping._id,
-        toppingName: newTopping.name,
-        tenantId: newTopping.tenantId,
-        price: newTopping.price,
-      }),
+      JSON.stringify(message),
+      updatedTopping._id?.toString()
     );
-    this.logger.info("Topping updated", { id: newTopping._id });
+
+    this.logger.info("Topping updated", { id: updatedTopping._id });
     res.json({
       message: "Tooping updated successfully",
       id: toppingId,
@@ -153,6 +172,22 @@ export class ToppingController {
       await this.storageService.delete(currentImage);
     }
     await this.toppingService.deleteTopping(toppingId);
+
+    //formatting kafka message
+    const message = {
+      event_type: EVENT_TYPE.TOPPING_DELETE,
+      data: {
+        id: topping._id,
+        toppingName: topping.name,
+        tenantId: topping.tenantId,
+      },
+    }
+
+    await this.broker.sendMessage(
+      config.get("kafka.topic.topping"),
+      JSON.stringify(message),
+      toppingId
+    );
     this.logger.info("Topping deleted", { id: toppingId });
     res.json({
       message: "Topping deleted successfully",

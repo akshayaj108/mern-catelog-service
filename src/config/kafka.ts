@@ -20,10 +20,16 @@ export class KafkaMessageBroker implements MessageProducerBroker {
     }
   }
 
-  async sendMessage(topic: string, message: string) {
+  async sendMessage(topic: string, message: string, key?: string) {
+    const brockerMessage: { value: string, key?: string} = {
+      value: message
+    };
+    if(key){
+      brockerMessage.key = key
+    }
     await this.producer.send({
       topic,
-      messages: [{ value: message }],
+      messages: [brockerMessage],
     });
   }
 }

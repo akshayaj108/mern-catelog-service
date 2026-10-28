@@ -12,6 +12,7 @@ import { ProductFilter } from "./product-types";
 import mongoose from "mongoose";
 import { MessageProducerBroker } from "../types/broker";
 import { mapPriceConfiguration } from "../common/utils/helper";
+import { EVENT_TYPE } from "../common/constants";
 
 export class ProductController {
   constructor(
@@ -19,7 +20,7 @@ export class ProductController {
     private readonly logger: Logger,
     private readonly storageService: FileStorage,
     private readonly broker: MessageProducerBroker,
-  ) {}
+  ) { }
 
   create = async (req: Request, res: Response, next: NextFunction) => {
     const results = validationResult(req);
@@ -59,12 +60,20 @@ export class ProductController {
     const mappedPriceConfigurations = mapPriceConfiguration(
       newProduct.priceConfiguration,
     );
-    await this.broker.sendMessage(
-      config.get("kafka.topic.product"),
-      JSON.stringify({
+
+    //formatting kafka message
+    const message = {
+      event_type: EVENT_TYPE.PRODUCT_CREATE,
+      data: {
         id: newProduct._id,
         priceConfiguration: mappedPriceConfigurations,
-      }),
+      },
+    }
+
+    await this.broker.sendMessage(
+      config.get("kafka.topic.product"),
+      JSON.stringify(message),
+      newProduct._id?.toString()
     );
     this.logger.info("Message sent to broker successfully");
     this.logger.info("Product is added", { id: newProduct._id });
@@ -157,13 +166,21 @@ export class ProductController {
     const mappedPriceConfigurations = mapPriceConfiguration(
       updatedProduct.priceConfiguration,
     );
-    await this.broker.sendMessage(
-      config.get("kafka.topic.product"),
-      JSON.stringify({
+    //formatting kafka message
+    const message = {
+      event_type: EVENT_TYPE.PRODUCT_UPDATE,
+      data: {
         id: updatedProduct._id,
         priceConfiguration: mappedPriceConfigurations,
-      }),
+      },
+    }
+
+    await this.broker.sendMessage(
+      config.get("kafka.topic.product"),
+      JSON.stringify(message),
+      updatedProduct._id?.toString()
     );
+
 
     //note: if we leave controller without res then it will process untill timeout
     res.json({
@@ -202,12 +219,21 @@ export class ProductController {
       await this.storageService.delete(productImage);
     }
     await this.productService.deleteProduct(productId);
+
+    //formatting kafka message
+    const message = {
+      event_type: EVENT_TYPE.PRODUCT_DELETE,
+      data: {
+        id: product._id,
+      },
+    }
+
     await this.broker.sendMessage(
       config.get("kafka.topic.product"),
-      JSON.stringify({
-        id: productId,
-      }),
+      JSON.stringify(message),
+      productId
     );
+
     this.logger.info("Message sent to broker successfully");
     this.logger.info("Product deleted successfully", {
       id: productId,
