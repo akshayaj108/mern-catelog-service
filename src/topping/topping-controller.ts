@@ -229,7 +229,11 @@ export class ToppingController {
         limit: limit ? Number(limit) : 10,
       },
     );
+    const { data, ...paginationDetails } = toppings;
     this.logger.info("All toppings are fetched");
-    res.json(toppings);
+    res.json({
+      ...paginationDetails,
+      data
+    });
   };
 }

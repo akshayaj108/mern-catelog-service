@@ -37,7 +37,7 @@ export class ToppingService {
         $match: matchQuery,
       },
     ]);
-    return await toppingModel.aggregatePaginate(aggregate, {
+    return toppingModel.aggregatePaginate(aggregate, {
       ...paginateQuery,
       customLabels: customPaginationLabels,
     });

@@ -268,8 +268,9 @@ export class ProductController {
         limit: limit ? Number(limit) : 10,
       },
     );
+    const { data, ...paginationDetails } = products;
     this.logger.info("Products fetched");
-    res.json(products);
+    res.json({ ...paginationDetails, data});
   };
 
   getProductById = async (req: Request, res: Response, next: NextFunction) => {
