@@ -1,3 +1,5 @@
+import config from "config";
+import cors from "cors";
 import express from "express";
 import { globalErrorHandler } from "./common/middlewares/globalErrorHandlers";
 import categoryRouter from "./category/category-router";
@@ -5,7 +7,14 @@ import productRouter from "./product/product-router";
 import toppingRouter from "./topping/topping-router";
 import cookieParser from "cookie-parser";
 
+const ALLOWED_DOMAIN: string[] = [config.get("frontend.clientUi"), config.get("frontend.adminUI")];
+
+//cors security
 const app = express();
+app.use(cors({
+  origin: ALLOWED_DOMAIN
+}));
+
 app.disable("x-powered-by");
 app.use(cookieParser());
 app.use(express.json());
