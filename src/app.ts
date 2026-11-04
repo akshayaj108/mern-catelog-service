@@ -7,7 +7,7 @@ import productRouter from "./product/product-router";
 import toppingRouter from "./topping/topping-router";
 import cookieParser from "cookie-parser";
 
-const ALLOWED_DOMAIN: string[] = [config.get("frontend.clientUi"), config.get("frontend.adminUI")];
+const ALLOWED_DOMAIN: string[] = [config.get("frontend.clientUI"), config.get("frontend.adminUI")];
 
 //cors security
 const app = express();
